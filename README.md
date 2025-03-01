@@ -6,7 +6,7 @@
 
 ```bash
 # Install from repo source
-pnpm install mingeme/aicommit
+pnpm install -g mingeme/aicommit
 
 # Install dependencies
 pnpm install
