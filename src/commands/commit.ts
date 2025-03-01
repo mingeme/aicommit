@@ -47,8 +47,11 @@ export async function createCommit(configManager: ConfigManager) {
       return;
     }
 
+    const escapedMessage = commitMessage.replace(/"/g, '\\"')
+      .replace(/`/g, '\\`');
+
     // Create the commit with the generated message
-    await execAsync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`);
+    await execAsync(`git commit -m "${escapedMessage}"`);
     console.log(chalk.green('Successfully created commit with AI-generated message!'));
 
   } catch (error) {

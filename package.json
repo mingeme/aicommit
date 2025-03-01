@@ -11,13 +11,18 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "test": "jest",
-    "postinstall": "npm run build"
+    "prepare": "pnpm run build"
   },
   "keywords": [
     "git",
     "cli",
     "aicommit",
     "typescript"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
   ],
   "author": "",
   "license": "MIT",

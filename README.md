@@ -5,27 +5,30 @@
 ## Installation
 
 ```bash
+# Install from repo source
+pnpm install mingeme/aicommit
+
 # Install dependencies
-npm install
+pnpm install
 
 # Build the project
-npm run build
+pnpm run build
 
 # Link the CLI tool globally
-npm link
+pnpm link
 ```
 
 ## Development
 
 ```bash
 # Run in development mode
-npm run dev
+pnpm run dev
 
 # Build the project
-npm run build
+pnpm run build
 
 # Run tests
-npm test
+pnpm test
 ```
 
 ## Usage
