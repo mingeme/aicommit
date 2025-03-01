@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { createAuthCommand } from './commands/auth';
-import { createCommit } from './commands/commit';
+import { createCommit, createCommitCommand } from './commands/commit';
 import { ConfigManager } from './config';
 
 const program = new Command();
@@ -13,7 +13,10 @@ program
   .description('AI-powered git commit message generator')
   .version('1.0.0');
 
-program.action(() => createCommit(configManager));
+// Add the commit command as the default command
+program
+  .option('-d, --dry-run', 'Generate commit message without creating a commit')
+  .action((options) => createCommit(configManager, { dryRun: options.dryRun }));
 program.addCommand(createAuthCommand(configManager));
 
 program.parse(process.argv);

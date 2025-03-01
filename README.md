@@ -37,9 +37,26 @@ pnpm test
 # Show help
 aicommit --help
 
-# Run
+# Generate a commit message and create a commit
 aicommit
+
+# Generate a commit message without creating a commit (dry-run mode)
+aicommit --dry-run
+# or
+aicommit -d
+
+# Authenticate with a provider
+aicommit auth add <provider> <apiKey>
+# or
+aicommit auth use <provider>
 ```
+
+### Options
+
+- `-d, --dry-run`: Generate a commit message without creating a commit
+- `auth add <provider> <apiKey>`: Add a new provider configuration
+- `auth use <provider>`: Set the current provider
+- `-h, --help`: Display help information
 
 ## License
 
