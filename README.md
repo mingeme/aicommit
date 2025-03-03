@@ -4,9 +4,19 @@
 
 ## Installation
 
+### Using Homebrew (macOS and Linux)
+
 ```bash
-# Install from repo source
-pnpm install -g mingeme/aicommit
+# Install from Homebrew tap
+brew install mingeme/aicommit/aicommit
+```
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/mingeme/aicommit.git
+cd aicommit
 
 # Install dependencies
 pnpm install

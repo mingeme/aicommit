@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Set permissions for the GITHUB_TOKEN
+permissions:
+  contents: write  # This is required for creating releases
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build
+        run: pnpm run build
+      
+      - name: Set Version
+        id: version
+        run: |
+          # Extract tag name from github.ref (format: refs/tags/v1.0.0)
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Remove 'v' prefix to get the version number
+          VERSION=${TAG_NAME#v}
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Tag: $TAG_NAME, Version: $VERSION"
+      
+      - name: Create tarball
+        run: |
+          # Create a temporary directory for the release files
+          mkdir -p release-tmp
+          
+          # Copy all files except node_modules and .git
+          rsync -av --exclude=node_modules --exclude=.git --exclude=release-tmp . release-tmp/
+          
+          # Create the tarball from the temporary directory
+          tar -czf aicommit-${VERSION}.tar.gz -C release-tmp .
+          
+          # Clean up
+          rm -rf release-tmp
+      
+      - name: Create Release and Upload Asset
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.TAG_NAME }}
+          files: |
+            ./aicommit-${{ env.VERSION }}.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Calculate SHA256
+        id: sha256
+        run: |
+          SHA256=$(shasum -a 256 aicommit-${VERSION}.tar.gz | cut -d ' ' -f 1)
+          echo "sha=$SHA256" >> $GITHUB_OUTPUT
+      
+      - name: Update Homebrew Formula
+        run: |
+          # VERSION is already set in the environment from the Set Version step
+          SHA256=${{ steps.sha256.outputs.sha }}
+          
+          # Clone the Homebrew tap repository
+          git clone https://github.com/mingeme/homebrew-tap.git
+          
+          # Create Formula directory if it doesn't exist
+          mkdir -p homebrew-tap/Formula
+          
+          # Copy the formula template
+          cp Formula/aicommit.rb homebrew-tap/Formula/
+          
+          # Update the formula
+          sed -i "s|url \".*\"|url \"https://github.com/mingeme/aicommit/releases/download/v${VERSION}/aicommit-${VERSION}.tar.gz\"|g" homebrew-tap/Formula/aicommit.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|g" homebrew-tap/Formula/aicommit.rb
+          
+          # Commit and push the changes
+          cd homebrew-tap
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/aicommit.rb
+          git commit -m "Update aicommit to ${VERSION}"
+          git push https://${{ secrets.TAP_GITHUB_TOKEN }}@github.com/mingeme/homebrew-tap.git main
