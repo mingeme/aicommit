@@ -63,7 +63,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG_NAME }}
-          name: Release ${{ env.TAG_NAME }}
+          name: ${{ env.TAG_NAME }}
           files: |
             ./aicommit-${{ env.VERSION }}.tar.gz
           draft: false
@@ -92,7 +92,7 @@ jobs:
           cp Formula/aicommit.rb homebrew-tap/Formula/
           
           # Update the formula
-          sed -i "s|url \".*\"|url \"https://github.com/mingeme/aicommit/archive/refs/tags/v${VERSION}.tar.gz\"|g" homebrew-tap/Formula/aicommit.rb
+          sed -i "s|url \".*\"|url \"https://github.com/mingeme/aicommit/releases/download/v${VERSION}/aicommit-${VERSION}.tar.gz\"|g" homebrew-tap/Formula/aicommit.rb
           sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|g" homebrew-tap/Formula/aicommit.rb
           
           # Commit and push the changes
