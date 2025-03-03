@@ -13,11 +13,13 @@ export function createAuthCommand(configManager: ConfigManager): Command {
     .argument('<provider>', `Provider name (${PROVIDER_LIST.join(', ')})`)
     .argument('<apiKey>', 'API key for the provider')
     .option('-e, --endpoint <endpoint>', 'API endpoint URL')
+    .option('-m, --model <model>', 'Model name for the provider')
     .action((provider: string, apiKey: string, options) => {
       try {
         configManager.addProvider(provider, {
           apiKey: apiKey,
-          endpoint: options.endpoint || ''
+          endpoint: options.endpoint,
+          model: options.model,
         });
         console.log(chalk.green(`✓ Successfully added configuration for ${provider}`));
       } catch (error) {
@@ -43,6 +45,7 @@ export function createAuthCommand(configManager: ConfigManager): Command {
         const prefix = isCurrent ? chalk.green('* ') : '  ';
         console.log(`${prefix}${name}`);
         console.log(`    API Key: ${config.apiKey}`);
+        console.log(`    Model: ${config.model}`);
         if (config.endpoint) {
           console.log(`    Endpoint: ${config.endpoint}`);
         }

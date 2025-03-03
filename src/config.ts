@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { DEFAULT_ENDPOINTS } from './constants';
+import { DEFAULT_ENDPOINTS, DEFAULT_MODEL } from './constants';
 import { Config, Provider, ProviderConfig, isValidProvider } from './types/config';
 import { CONFIG_DIR, CONFIG_FILE } from './utils/paths';
 
@@ -88,10 +88,12 @@ export class ConfigManager {
 
     // Use default endpoint if not provided
     const endpoint = config.endpoint ?? DEFAULT_ENDPOINTS[provider];
+    const model = config.model ?? DEFAULT_MODEL[provider];
 
     this.config.providers[provider] = {
       ...config,
-      endpoint
+      endpoint,
+      model
     };
 
     // If this is the first provider, set it as current

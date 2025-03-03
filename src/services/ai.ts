@@ -3,18 +3,20 @@ import { ProviderConfig } from '../types/config';
 
 export class AIService {
   private readonly openai: OpenAI;
+  private readonly model: string;
 
   constructor(providerConfig: ProviderConfig) {
     this.openai = new OpenAI({
       apiKey: providerConfig.apiKey,
       baseURL: providerConfig.endpoint
     });
+    this.model = providerConfig.model;
   }
 
   async generateCommitMessage(diff: string): Promise<string> {
     try {
       const completion = await this.openai.chat.completions.create({
-        model: "deepseek-chat",
+        model: this.model,
         messages: [
           {
             role: "system",

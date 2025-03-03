@@ -36,7 +36,7 @@ export async function createCommit(configManager: ConfigManager, { dryRun = fals
     const config = configManager.getCurrentProviderConfig();
     const aiService = new AIService(config);
 
-    console.log(chalk.blue('Generating commit message...'));
+    console.log(chalk.blue(`Generating commit message by ${config.model}...`));
     const commitMessage = await aiService.generateCommitMessage(diff);
 
     // Show the generated commit message

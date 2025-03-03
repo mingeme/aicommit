@@ -1,10 +1,12 @@
 export enum Provider {
   Deepseek = 'deepseek',
+  Qwen = 'qwen',
 }
 
 export interface ProviderConfig {
   apiKey: string;
   endpoint: string;
+  model: string;
 }
 
 export type Providers = {
