@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+# Set permissions for the GITHUB_TOKEN
+permissions:
+  contents: write  # This is required for creating releases
+
 jobs:
   build:
     runs-on: ubuntu-latest
