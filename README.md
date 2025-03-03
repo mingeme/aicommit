@@ -8,7 +8,7 @@
 
 ```bash
 # Install from Homebrew tap
-brew install mingeme/aicommit/aicommit
+brew install mingeme/tap/aicommit
 ```
 
 ### From Source
