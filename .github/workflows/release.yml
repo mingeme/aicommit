@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build
+        run: pnpm run build
+      
+      - name: Create tarball
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          VERSION=${VERSION#v}
+          tar -czf aicommit-${VERSION}.tar.gz --exclude=node_modules --exclude=.git .
+      
+      - name: Create Release and Upload Asset
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          files: |
+            ./aicommit-${{ github.ref_name#v }}.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Calculate SHA256
+        id: sha256
+        run: |
+          SHA256=$(shasum -a 256 aicommit-${{ github.ref_name#v }}.tar.gz | cut -d ' ' -f 1)
+          echo "sha=$SHA256" >> $GITHUB_OUTPUT
+      
+      - name: Update Homebrew Formula
+        run: |
+          VERSION=${{ github.ref_name#v }}
+          SHA256=${{ steps.sha256.outputs.sha }}
+          
+          # Clone the Homebrew tap repository
+          git clone https://github.com/mingeme/homebrew-tap.git
+          
+          # Create Formula directory if it doesn't exist
+          mkdir -p homebrew-tap/Formula
+          
+          # Copy the formula template
+          cp Formula/aicommit.rb homebrew-tap/Formula/
+          
+          # Update the formula
+          sed -i "s|url \".*\"|url \"https://github.com/mingeme/aicommit/archive/refs/tags/v${VERSION}.tar.gz\"|g" homebrew-tap/Formula/aicommit.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|g" homebrew-tap/Formula/aicommit.rb
+          
+          # Commit and push the changes
+          cd homebrew-tap
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/aicommit.rb
+          git commit -m "Update aicommit to ${VERSION}"
+          git push https://${{ secrets.TAP_GITHUB_TOKEN }}@github.com/mingeme/homebrew-tap.git main
