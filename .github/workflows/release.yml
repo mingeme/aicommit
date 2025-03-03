@@ -42,7 +42,17 @@ jobs:
       
       - name: Create tarball
         run: |
-          tar -czf aicommit-${VERSION}.tar.gz --exclude=node_modules --exclude=.git .
+          # Create a temporary directory for the release files
+          mkdir -p release-tmp
+          
+          # Copy all files except node_modules and .git
+          rsync -av --exclude=node_modules --exclude=.git --exclude=release-tmp . release-tmp/
+          
+          # Create the tarball from the temporary directory
+          tar -czf aicommit-${VERSION}.tar.gz -C release-tmp .
+          
+          # Clean up
+          rm -rf release-tmp
       
       - name: Create Release and Upload Asset
         id: release
