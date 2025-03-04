@@ -37,5 +37,8 @@ Thumbs.db
 # Ignore built ts files
 dist/**/*
 
+# Ignore auto-generated version file
+src/utils/version.ts
+
 # ignore yarn.lock
 yarn.lock

@@ -2,9 +2,10 @@
 
 import { Command } from 'commander';
 import { createAuthCommand } from './commands/auth';
-import { createCommit, createCommitCommand } from './commands/commit';
+import { createCommit } from './commands/commit';
 import { createPromptCommand } from './commands/prompt';
 import { ConfigManager } from './config';
+import { VERSION } from './utils/version';
 
 const program = new Command();
 const configManager = new ConfigManager();
@@ -12,7 +13,7 @@ const configManager = new ConfigManager();
 program
   .name('aicommit')
   .description('AI-powered git commit message generator')
-  .version('1.0.0');
+  .version(VERSION);
 
 // Add the commit command as the default command
 program
