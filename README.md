@@ -2,6 +2,8 @@
 
 `aicommit` is an AI-powered git commit message generator.
 
+![showcase](./assets/showcase.gif)
+
 ## Installation
 
 ### Using Homebrew (macOS and Linux)
@@ -59,6 +61,11 @@ aicommit -d
 aicommit auth add <provider> <apiKey>
 # or
 aicommit auth use <provider>
+
+# Manage prompt configurations
+aicommit prompt init        # Create a default prompt configuration in current directory
+aicommit prompt init --global  # Create a default prompt configuration in global config directory
+aicommit prompt show        # Show current prompt configuration
 ```
 
 ### Options
@@ -66,7 +73,29 @@ aicommit auth use <provider>
 - `-d, --dry-run`: Generate a commit message without creating a commit
 - `auth add <provider> <apiKey>`: Add a new provider configuration
 - `auth use <provider>`: Set the current provider
+- `prompt init`: Create a new prompt configuration file
+- `prompt show`: Show current prompt configuration
 - `-h, --help`: Display help information
+
+## Customizing Prompts
+
+You can customize the prompts used for generating commit messages by creating a `.aicommit.md` file either in your current working directory or in the global config directory (`~/.config/aicommit/`).
+
+The file should have the following format:
+
+```markdown
+# System Prompt
+
+Your custom system prompt here
+
+# User Prompt Template
+
+Your custom user prompt template here
+
+{{diff}}
+```
+
+The `{{diff}}` placeholder will be replaced with the actual git diff content.
 
 ## License
 

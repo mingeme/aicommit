@@ -1,9 +1,12 @@
 import OpenAI from 'openai';
 import { ProviderConfig } from '../types/config';
+import { PromptConfig } from '../types/prompt';
+import { applyTemplateVariables, loadPromptConfig } from '../utils/prompt';
 
 export class AIService {
   private readonly openai: OpenAI;
   private readonly model: string;
+  private readonly promptConfig: PromptConfig;
 
   constructor(providerConfig: ProviderConfig) {
     this.openai = new OpenAI({
@@ -11,20 +14,24 @@ export class AIService {
       baseURL: providerConfig.endpoint
     });
     this.model = providerConfig.model;
+    this.promptConfig = loadPromptConfig();
   }
 
   async generateCommitMessage(diff: string): Promise<string> {
     try {
+      // Apply template variables to the user prompt
+      const userPrompt = applyTemplateVariables(this.promptConfig.userPromptTemplate, { diff });
+      
       const completion = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that generates clear and concise git commit messages. Follow conventional commits format. Disable markdown in the response."
+            content: this.promptConfig.systemPrompt
           },
           {
             role: "user",
-            content: `Please generate a commit message for the following git diff:\n\n${diff}`
+            content: userPrompt
           }
         ],
         temperature: 0.7,

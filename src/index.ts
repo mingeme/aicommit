@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { createAuthCommand } from './commands/auth';
 import { createCommit, createCommitCommand } from './commands/commit';
+import { createPromptCommand } from './commands/prompt';
 import { ConfigManager } from './config';
 
 const program = new Command();
@@ -18,5 +19,6 @@ program
   .option('-d, --dry-run', 'Generate commit message without creating a commit')
   .action((options) => createCommit(configManager, { dryRun: options.dryRun }));
 program.addCommand(createAuthCommand(configManager));
+program.addCommand(createPromptCommand());
 
 program.parse(process.argv);
