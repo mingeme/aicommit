@@ -45,12 +45,13 @@ pnpm test
 
 ## Version Management
 
-The version number is automatically generated during the build process based on Git tags:
+The version number is automatically generated based on Git tags:
 
 - If the current commit has a tag, that tag will be used as the version (preserving the 'v' prefix if present)
 - If the current commit doesn't have a tag, a version in the format `{tag}-{shortHash}` will be generated, where `{tag}` is the tag and `{shortHash}` is the short Git commit hash
 - If no tags exist in the repository, a fallback version in the format `v0.1.0-{shortHash}` will be used
-- The version is generated at build time and stored in `src/utils/version.ts`, which is automatically generated and should not be manually edited
+- The version is stored in `src/utils/version.ts`, which is automatically generated and should not be manually edited
+- The version file is only generated if it doesn't already exist, to regenerate it run `pnpm run version`
 - The `src/utils/version.ts` file is included in `.gitignore` since it's generated during build
 
 ## Usage

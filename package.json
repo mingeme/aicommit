@@ -7,10 +7,11 @@
     "aicommit": "./dist/index.js"
   },
   "scripts": {
-    "prebuild": "node scripts/generate-version.js",
+    "prebuild": "node scripts/check-version.js",
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "node scripts/generate-version.js && ts-node src/index.ts",
+    "dev": "node scripts/check-version.js && ts-node src/index.ts",
+    "version": "node scripts/generate-version.js",
     "test": "jest",
     "prepare": "pnpm run build"
   },
