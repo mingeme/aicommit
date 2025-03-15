@@ -5,6 +5,7 @@ import inquirer from 'inquirer';
 import { promisify } from 'util';
 import { ConfigManager } from '../config';
 import { AIService } from '../services/ai';
+import { findPromptConfigPath, loadPromptConfig, loadPromptConfigFromPath } from '../utils/prompt';
 
 const execAsync = promisify(exec);
 
@@ -20,7 +21,7 @@ async function getUserConfirmation(commitMessage: string): Promise<boolean> {
   return confirm;
 }
 
-export async function createCommit(configManager: ConfigManager, { dryRun = false }) {
+export async function createCommit(configManager: ConfigManager, { dryRun = false, promptConfigPath = undefined }) {
   try {
     // Check if we're in a git repository
     await execAsync('git rev-parse --is-inside-work-tree');
@@ -34,7 +35,21 @@ export async function createCommit(configManager: ConfigManager, { dryRun = fals
     }
 
     const config = configManager.getCurrentProviderConfig();
-    const aiService = new AIService(config);
+
+    // Find the prompt config path
+    const customPromptConfigPath = findPromptConfigPath(promptConfigPath);
+
+    // Load the prompt config and display which file is being used
+    let promptConfigData;
+    if (customPromptConfigPath) {
+      console.log(chalk.blue(`Using prompt config from: ${customPromptConfigPath}`));
+      promptConfigData = loadPromptConfigFromPath(customPromptConfigPath);
+    } else {
+      console.log(chalk.blue('Using default prompt config (no .aicommit.md file found)'));
+      promptConfigData = loadPromptConfig();
+    }
+
+    const aiService = new AIService(config, promptConfigData);
 
     console.log(chalk.blue(`Generating commit message by ${config.model}...`));
     const commitMessage = await aiService.generateCommitMessage(diff);
@@ -77,7 +92,11 @@ export function createCommitCommand(configManager: ConfigManager): Command {
   commit
     .description('Generate AI-powered git commit message')
     .option('-d, --dry-run', 'Generate commit message without creating a commit')
-    .action((options) => createCommit(configManager, { dryRun: options.dryRun }));
+    .option('-p, --prompt-config <path>', 'Specify a custom path for the .aicommit.md file')
+    .action((options) => createCommit(configManager, {
+      dryRun: options.dryRun,
+      promptConfigPath: options.promptConfig
+    }));
 
   return commit;
 }
