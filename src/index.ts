@@ -16,13 +16,8 @@ program
   .version(VERSION);
 
 // Add the commit command as the default command
-program
-  .option('-d, --dry-run', 'Generate commit message without creating a commit')
-  .option('-p, --prompt-config <path>', 'Specify a custom path for the .aicommit.md file')
-  .action((options) => createCommit(configManager, {
-    dryRun: options.dryRun,
-    promptConfigPath: options.promptConfig
-  }));
+// Set up the default command (commit)
+createCommit(program, configManager);
 program.addCommand(createAuthCommand(configManager));
 program.addCommand(createPromptCommand());
 
