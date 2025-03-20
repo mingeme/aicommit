@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { DEFAULT_PROMPT_MARKDOWN } from '../constants';
+import { DEFAULT_PROMPT_YAML } from '../constants';
 import { CONFIG_DIR } from '../utils/paths';
 import { PROMPT_CONFIG_FILENAME, loadPromptConfig } from '../utils/prompt';
 
@@ -27,7 +27,7 @@ export function createPromptCommand(): Command {
         }
 
         // Create the file with default content
-        writeFileSync(targetPath, DEFAULT_PROMPT_MARKDOWN);
+        writeFileSync(targetPath, DEFAULT_PROMPT_YAML);
         console.log(chalk.green(`✓ Created prompt configuration at ${targetPath}`));
       } catch (error) {
         console.error(chalk.red(`Error: ${(error as Error).message}`));
@@ -43,10 +43,10 @@ export function createPromptCommand(): Command {
 
         console.log(chalk.blue('Current Prompt Configuration:'));
         console.log(chalk.cyan('\nSystem Prompt:'));
-        console.log(config.systemPrompt);
+        console.log(config.prompt.system);
 
         console.log(chalk.cyan('\nUser Prompt Template:'));
-        console.log(config.userPromptTemplate);
+        console.log(config.prompt.user);
       } catch (error) {
         console.error(chalk.red(`Error: ${(error as Error).message}`));
       }

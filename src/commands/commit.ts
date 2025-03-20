@@ -74,7 +74,7 @@ async function getUserConfirmation(commitMessage: string): Promise<boolean> {
 export function createCommit(program: Command, configManager: ConfigManager) {
   program
     .option('-d, --dry-run', 'Generate commit message without creating a commit')
-    .option('-p, --prompt-config <path>', 'Specify a custom path for the .aicommit.md file')
+    .option('-p, --prompt-config <path>', 'Specify a custom path for the .aicommit.yml or .aicommit.yaml file')
     .option('-c, --copy', 'Copy the generated commit message to clipboard')
     .action(async (options) => {
       try {
@@ -100,7 +100,7 @@ export function createCommit(program: Command, configManager: ConfigManager) {
           console.log(chalk.blue(`Using prompt config from: ${customPromptConfigPath}`));
           promptConfigData = loadPromptConfigFromPath(customPromptConfigPath);
         } else {
-          console.log(chalk.blue('Using default prompt config (no .aicommit.md file found)'));
+          console.log(chalk.blue('Using default prompt config (no .aicommit.yml or .aicommit.yaml file found)'));
           promptConfigData = loadPromptConfig();
         }
 

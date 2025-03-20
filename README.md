@@ -90,20 +90,18 @@ aicommit prompt show        # Show current prompt configuration
 
 ## Customizing Prompts
 
-You can customize the prompts used for generating commit messages by creating a `.aicommit.md` file either in your current working directory or in the global config directory (`~/.config/aicommit/`).
+You can customize the prompts used for generating commit messages by creating a `.aicommit.yml` or `.aicommit.yaml` file either in your current working directory or in the global config directory (`~/.config/aicommit/`).
 
 The file should have the following format:
 
-```markdown
-# System Prompt
+```yaml
+prompt:
+  system: |
+    Your custom system prompt here
+  user: |
+    Your custom user prompt template here
 
-Your custom system prompt here
-
-# User Prompt Template
-
-Your custom user prompt template here
-
-{{diff}}
+    {{diff}}
 ```
 
 The `{{diff}}` placeholder will be replaced with the actual git diff content.

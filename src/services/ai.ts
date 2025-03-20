@@ -20,14 +20,14 @@ export class AIService {
   async generateCommitMessage(diff: string): Promise<string> {
     try {
       // Apply template variables to the user prompt
-      const userPrompt = applyTemplateVariables(this.promptConfig.userPromptTemplate, { diff });
+      const userPrompt = applyTemplateVariables(this.promptConfig.prompt.user, { diff });
 
       const completion = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
           {
             role: "system",
-            content: this.promptConfig.systemPrompt
+            content: this.promptConfig.prompt.system
           },
           {
             role: "user",

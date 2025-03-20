@@ -1,32 +1,45 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
+import { parse, stringify } from 'yaml';
 import { DEFAULT_PROMPT_CONFIG, PromptConfig } from '../types/prompt';
 import { CONFIG_DIR } from './paths';
 
-// File name for the prompt configuration
-export const PROMPT_CONFIG_FILENAME = '.aicommit.md';
+// File names for the prompt configuration
+export const PROMPT_CONFIG_FILENAMES = ['.aicommit.yml', '.aicommit.yaml'];
+export const PROMPT_CONFIG_FILENAME = PROMPT_CONFIG_FILENAMES[0]; // Default filename for creating new files
 
 /**
- * Parse a markdown file into a PromptConfig object
+ * Parse a YAML file into a PromptConfig object
  * 
  * Expected format:
- * # System Prompt
- * [system prompt content]
- * 
- * # User Prompt Template
- * [user prompt template content]
+ * prompt:
+ *   system: |
+ *     [system prompt content]
+ *   user: |
+ *     [user prompt template content]
  */
-export function parsePromptMarkdown(content: string): PromptConfig {
-  const systemPromptRegex = /# System Prompt\s*\n([\s\S]*?)(?=\n# User Prompt Template|\n# |$)/;
-  const userPromptRegex = /# User Prompt Template\s*\n([\s\S]*?)(?=\n# |$)/;
-
-  const systemPromptMatch = systemPromptRegex.exec(content);
-  const userPromptMatch = userPromptRegex.exec(content);
-
-  return {
-    systemPrompt: systemPromptMatch?.[1]?.trim() ?? DEFAULT_PROMPT_CONFIG.systemPrompt,
-    userPromptTemplate: userPromptMatch?.[1]?.trim() ?? DEFAULT_PROMPT_CONFIG.userPromptTemplate
-  };
+export function parsePromptYaml(content: string): PromptConfig {
+  try {
+    // Parse YAML content
+    const parsed = parse(content) as Partial<PromptConfig>;
+    
+    // Extract values from the nested format
+    if (parsed.prompt && typeof parsed.prompt === 'object') {
+      return {
+        prompt: {
+          system: parsed.prompt.system?.trim() ?? DEFAULT_PROMPT_CONFIG.prompt.system,
+          user: parsed.prompt.user?.trim() ?? DEFAULT_PROMPT_CONFIG.prompt.user
+        }
+      };
+    } else {
+      // If prompt object is missing or invalid, use defaults
+      console.warn('Warning: YAML config missing or has invalid prompt structure');
+      return DEFAULT_PROMPT_CONFIG;
+    }
+  } catch (error) {
+    console.warn(`Warning: Failed to parse YAML content: ${error}`); 
+    return DEFAULT_PROMPT_CONFIG;
+  }
 }
 
 /**
@@ -36,7 +49,7 @@ export function parsePromptMarkdown(content: string): PromptConfig {
  * 2. Current working directory
  * 3. Config directory (~/.config/aicommit)
  * 
- * @param customPath Optional custom path to the .aicommit.md file
+ * @param customPath Optional custom path to the .aicommit.yml file
  * @returns The path to the prompt config file, or null if not found
  */
 export function findPromptConfigPath(customPath?: string): string | null {
@@ -45,16 +58,20 @@ export function findPromptConfigPath(customPath?: string): string | null {
     return customPath;
   }
 
-  // Try current directory next
-  const cwdConfigPath = join(process.cwd(), PROMPT_CONFIG_FILENAME);
-  if (existsSync(cwdConfigPath)) {
-    return cwdConfigPath;
+  // Try all possible filenames in current directory
+  for (const filename of PROMPT_CONFIG_FILENAMES) {
+    const cwdConfigPath = join(process.cwd(), filename);
+    if (existsSync(cwdConfigPath)) {
+      return cwdConfigPath;
+    }
   }
 
-  // Try config directory next
-  const globalConfigPath = join(CONFIG_DIR, PROMPT_CONFIG_FILENAME);
-  if (existsSync(globalConfigPath)) {
-    return globalConfigPath;
+  // Try all possible filenames in config directory
+  for (const filename of PROMPT_CONFIG_FILENAMES) {
+    const globalConfigPath = join(CONFIG_DIR, filename);
+    if (existsSync(globalConfigPath)) {
+      return globalConfigPath;
+    }
   }
 
   // No config file found
@@ -70,7 +87,7 @@ export function findPromptConfigPath(customPath?: string): string | null {
 export function loadPromptConfigFromPath(configPath: string): PromptConfig {
   try {
     const content = readFileSync(configPath, 'utf-8');
-    return parsePromptMarkdown(content);
+    return parsePromptYaml(content);
   } catch (error) {
     console.warn(`Warning: Failed to parse prompt config from ${configPath}`);
     return DEFAULT_PROMPT_CONFIG;
@@ -78,14 +95,14 @@ export function loadPromptConfigFromPath(configPath: string): PromptConfig {
 }
 
 /**
- * Load prompt configuration from a markdown file
+ * Load prompt configuration from a YAML file
  * Searches in the following locations in order:
  * 1. Custom path (if provided)
  * 2. Current working directory
  * 3. Config directory (~/.config/aicommit)
  * 4. Falls back to default if no file is found
  *
- * @param customPath Optional custom path to the .aicommit.md file
+ * @param customPath Optional custom path to the .aicommit.yml file
  */
 export function loadPromptConfig(customPath?: string): PromptConfig {
   const configPath = findPromptConfigPath(customPath);
