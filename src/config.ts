@@ -103,6 +103,32 @@ export class ConfigManager {
     this.saveConfig();
   }
 
+  setProviderProperty(provider: string, property: string, value: string): void {
+    if (!isValidProvider(provider)) {
+      throw new Error(`Invalid provider: ${provider}. Must be one of: ${Object.values(Provider).join(', ')}`);
+    }
+    
+    if (!(provider in this.config.providers)) {
+      throw new Error(`Provider ${provider} not found in configuration`);
+    }
+    
+    const validProperties = ['apiKey', 'model', 'endpoint'];
+    if (!validProperties.includes(property)) {
+      throw new Error(`Invalid property: ${property}. Must be one of: ${validProperties.join(', ')}`);
+    }
+    
+    // Get the current provider config and ensure it's properly typed
+    const currentConfig = this.config.providers[provider] as ProviderConfig;
+    
+    // Update the specific property while maintaining the type
+    this.config.providers[provider] = {
+      ...currentConfig,
+      [property]: value
+    };
+    
+    this.saveConfig();
+  }
+
   listProviders(): Record<string, ProviderConfig> {
     return { ...this.config.providers };
   }

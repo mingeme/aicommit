@@ -72,6 +72,8 @@ aicommit -d
 aicommit auth add <provider> <apiKey>
 # or
 aicommit auth use <provider>
+# or set specific provider properties
+aicommit auth set <provider>.<model/apiKey/endpoint> <value>
 
 # Manage prompt configurations
 aicommit prompt init        # Create a default prompt configuration in current directory
@@ -84,6 +86,7 @@ aicommit prompt show        # Show current prompt configuration
 - `-d, --dry-run`: Generate a commit message without creating a commit
 - `auth add <provider> <apiKey>`: Add a new provider configuration
 - `auth use <provider>`: Set the current provider
+- `auth set <provider>.<property> <value>`: Update a specific property (model, apiKey, or endpoint) for a provider
 - `prompt init`: Create a new prompt configuration file
 - `prompt show`: Show current prompt configuration
 - `-h, --help`: Display help information

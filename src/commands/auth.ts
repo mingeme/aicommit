@@ -64,6 +64,26 @@ export function createAuthCommand(configManager: ConfigManager): Command {
         console.error(chalk.red(`Error: ${(error as Error).message}`));
       }
     });
+    
+  auth
+    .command('set')
+    .description('Update a specific property for a provider')
+    .argument('<providerProperty>', 'Provider and property in format: provider.property (e.g., openai.model)')
+    .argument('<value>', 'New value for the property')
+    .action((providerProperty: string, value: string) => {
+      try {
+        const [provider, property] = providerProperty.split('.');
+        
+        if (!provider || !property) {
+          throw new Error('Invalid format. Use: provider.property (e.g., openai.model)');
+        }
+        
+        configManager.setProviderProperty(provider, property, value);
+        console.log(chalk.green(`✓ Updated ${property} for ${provider} to: ${value}`));
+      } catch (error) {
+        console.error(chalk.red(`Error: ${(error as Error).message}`));
+      }
+    });
 
   return auth;
 }
