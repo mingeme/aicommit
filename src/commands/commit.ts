@@ -62,13 +62,14 @@ async function copyToClipboard(text: string): Promise<void> {
 async function getUserConfirmation(commitMessage: string): Promise<boolean> {
   const { confirm } = await inquirer.prompt([
     {
-      type: 'confirm',
+      type: 'list',
       name: 'confirm',
       message: `Do you want to commit with this message?`,
-      default: true
+      choices: ['Yes', 'No'],
+      default: 'Yes'
     }
   ]);
-  return confirm;
+  return confirm === 'Yes';
 }
 
 export function createCommit(program: Command, configManager: ConfigManager) {
