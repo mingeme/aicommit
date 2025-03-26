@@ -77,6 +77,7 @@ export function createCommit(program: Command, configManager: ConfigManager) {
     .option('-d, --dry-run', 'Generate commit message without creating a commit')
     .option('-p, --prompt-config <path>', 'Specify a custom path for the .aicommit.yml or .aicommit.yaml file')
     .option('-c, --copy', 'Copy the generated commit message to clipboard')
+    .option('-s, --silent', 'Commit without confirmation')
     .action(async (options) => {
       try {
         // Check if we're in a git repository
@@ -134,11 +135,14 @@ export function createCommit(program: Command, configManager: ConfigManager) {
           return;
         }
 
-        // Wait for user confirmation
-        const confirm = await getUserConfirmation(commitMessage);
-        if (!confirm) {
-          console.log(chalk.yellow('Commit cancelled'));
-          return;
+        // Skip confirmation if silent mode is enabled
+        if (!options.silent) {
+          // Wait for user confirmation
+          const confirm = await getUserConfirmation(commitMessage);
+          if (!confirm) {
+            console.log(chalk.yellow('Commit cancelled'));
+            return;
+          }
         }
 
         // Create the commit with the generated message
