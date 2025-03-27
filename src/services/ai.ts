@@ -1,33 +1,33 @@
 import OpenAI from 'openai';
 import { ProviderConfig } from '../types/config';
-import { applyTemplateVariables } from '../utils/prompt';
-import { PromptConfig } from './../types/prompt';
+import { applyTemplateVariables } from '../utils/config';
+import { AiCommitConfig } from './../types/aicommit';
 
 export class AIService {
   private readonly openai: OpenAI;
   private readonly model: string;
-  private readonly promptConfig: PromptConfig;
+  private readonly aiCommitConfig: AiCommitConfig;
 
-  constructor(providerConfig: ProviderConfig, promptConfig: PromptConfig) {
+  constructor(providerConfig: ProviderConfig, aiCommitConfig: AiCommitConfig) {
     this.openai = new OpenAI({
       apiKey: providerConfig.apiKey,
       baseURL: providerConfig.endpoint
     });
     this.model = providerConfig.model;
-    this.promptConfig = promptConfig;
+    this.aiCommitConfig = aiCommitConfig;
   }
 
   async generateCommitMessage(diff: string): Promise<string> {
     try {
       // Apply template variables to the user prompt
-      const userPrompt = applyTemplateVariables(this.promptConfig.prompt.user, { diff });
+      const userPrompt = applyTemplateVariables(this.aiCommitConfig.prompt.user, { diff });
 
       const completion = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
           {
             role: "system",
-            content: this.promptConfig.prompt.system
+            content: this.aiCommitConfig.prompt.system
           },
           {
             role: "user",

@@ -10,7 +10,7 @@ export const DEFAULT_MODEL: Record<Provider, string> = {
   [Provider.Qwen]: 'qwen-plus'
 };
 
-export const DEFAULT_PROMPT_YAML = `prompt:
+export const DEFAULT_AICOMMIT_YAML = `prompt:
   system: |
     You are a helpful assistant that generates clear and concise git commit messages. Follow conventional commits format. Disable markdown in the response.
   user: |

@@ -5,7 +5,7 @@ import inquirer from 'inquirer';
 import { promisify } from 'util';
 import { ConfigManager } from '../config';
 import { AIService } from '../services/ai';
-import { findPromptConfigPath, loadPromptConfig, loadPromptConfigFromPath } from '../utils/prompt';
+import { findAiCommitConfigPath, loadAiCommitConfig, loadAiCommitConfigFromPath } from '../utils/config';
 
 const execAsync = promisify(exec);
 
@@ -83,8 +83,39 @@ export function createCommit(program: Command, configManager: ConfigManager) {
         // Check if we're in a git repository
         await execAsync('git rev-parse --is-inside-work-tree');
 
-        // Get staged changes
-        const { stdout: diff } = await execAsync('git diff --staged');
+        // Find the config path first to get exclude patterns
+        const customConfigPath = findAiCommitConfigPath(options.promptConfig);
+
+        // Load the config and display which file is being used
+        let aiCommitConfig;
+        if (customConfigPath) {
+          console.log(chalk.blue(`Using config from: ${customConfigPath}`));
+          aiCommitConfig = loadAiCommitConfigFromPath(customConfigPath);
+        } else {
+          console.log(chalk.blue('Using default config (no .aicommit.yml or .aicommit.yaml file found)'));
+          aiCommitConfig = loadAiCommitConfig();
+        }
+
+        // Build git diff command with exclude patterns
+        let gitDiffCommand = 'git diff --staged';
+        
+        // Add exclude patterns if any
+        if (aiCommitConfig.exclude && aiCommitConfig.exclude.length > 0) {
+          // Create a properly escaped git command with exclude patterns
+          // We need to handle the exclude patterns differently to avoid shell interpretation issues
+          const excludeArgs = aiCommitConfig.exclude.map(pattern => `':(exclude)${pattern}'`);
+          gitDiffCommand = `${gitDiffCommand} -- .`;
+          
+          // For each exclude pattern, add it as a separate argument
+          for (const excludeArg of excludeArgs) {
+            gitDiffCommand = `${gitDiffCommand} ${excludeArg}`;
+          }
+          
+          console.log(chalk.blue(`Excluding files matching patterns: ${aiCommitConfig.exclude.join(', ')}`));
+        }
+        
+        // Get staged changes with exclusions applied
+        const { stdout: diff } = await execAsync(gitDiffCommand);
 
         if (!diff) {
           console.log(chalk.yellow('No staged changes found. Please stage your changes first using `git add`.'));
@@ -93,20 +124,7 @@ export function createCommit(program: Command, configManager: ConfigManager) {
 
         const config = configManager.getCurrentProviderConfig();
 
-        // Find the prompt config path
-        const customPromptConfigPath = findPromptConfigPath(options.promptConfig);
-
-        // Load the prompt config and display which file is being used
-        let promptConfigData;
-        if (customPromptConfigPath) {
-          console.log(chalk.blue(`Using prompt config from: ${customPromptConfigPath}`));
-          promptConfigData = loadPromptConfigFromPath(customPromptConfigPath);
-        } else {
-          console.log(chalk.blue('Using default prompt config (no .aicommit.yml or .aicommit.yaml file found)'));
-          promptConfigData = loadPromptConfig();
-        }
-
-        const aiService = new AIService(config, promptConfigData);
+        const aiService = new AIService(config, aiCommitConfig);
 
         console.log(chalk.blue(`Generating commit message by ${config.model}...`));
         const commitMessage = await aiService.generateCommitMessage(diff);
