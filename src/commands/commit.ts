@@ -98,12 +98,13 @@ export function createCommit(program: Command, configManager: ConfigManager) {
         }
 
         // Log excluded patterns if any
-        if (aiCommitConfig.exclude?.length > 0) {
-          console.log(chalk.blue(`Excluding files matching patterns: ${aiCommitConfig.exclude.join(', ')}`));
+        const excludePatterns = aiCommitConfig?.exclude || [];
+        if (excludePatterns.length > 0) {
+          console.log(chalk.blue(`Excluding files matching patterns: ${excludePatterns.join(', ')}`));
         }
         
         // Build git diff command with exclude patterns (now async)
-        const gitDiffCommand = await createGitDiffCommandWithExclusions(aiCommitConfig?.exclude);
+        const gitDiffCommand = await createGitDiffCommandWithExclusions(excludePatterns);
         
         // Get staged changes with exclusions applied
         const { stdout: diff } = await execAsync(gitDiffCommand);
