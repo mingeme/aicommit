@@ -105,9 +105,29 @@ prompt:
     Your custom user prompt template here
 
     {{diff}}
+
+# Optional: exclude specific files from the diff
+exclude:
+  - "package-lock.json"
+  - "**/node_modules/**"
+  - "dist/**"
 ```
 
 The `{{diff}}` placeholder will be replaced with the actual git diff content.
+
+### Excluding Files from Diff
+
+You can exclude specific files or patterns from the git diff by adding an `exclude` section to your `.aicommit.yml` file:
+
+```yaml
+exclude:
+  - "package-lock.json"      # Exclude a specific file
+  - "**/node_modules/**"     # Exclude all node_modules directories recursively
+  - "dist/**"                # Exclude all files in the dist directory
+  - "**/*.lock"              # Exclude all .lock files in any directory
+```
+
+The exclude patterns support Git's pathspec syntax, including recursive glob patterns with `**/`. This is useful for excluding generated files, large dependency files, or any content you don't want to include in your commit message generation.
 
 ## License
 

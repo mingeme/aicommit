@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { ConfigManager } from '../config';
 import { AIService } from '../services/ai';
 import { findAiCommitConfigPath, loadAiCommitConfig, loadAiCommitConfigFromPath } from '../utils/config';
+import { createGitDiffCommandWithExclusions } from '../utils/git';
 
 const execAsync = promisify(exec);
 
@@ -96,23 +97,13 @@ export function createCommit(program: Command, configManager: ConfigManager) {
           aiCommitConfig = loadAiCommitConfig();
         }
 
-        // Build git diff command with exclude patterns
-        let gitDiffCommand = 'git diff --staged';
-        
-        // Add exclude patterns if any
-        if (aiCommitConfig.exclude && aiCommitConfig.exclude.length > 0) {
-          // Create a properly escaped git command with exclude patterns
-          // We need to handle the exclude patterns differently to avoid shell interpretation issues
-          const excludeArgs = aiCommitConfig.exclude.map(pattern => `':(exclude)${pattern}'`);
-          gitDiffCommand = `${gitDiffCommand} -- .`;
-          
-          // For each exclude pattern, add it as a separate argument
-          for (const excludeArg of excludeArgs) {
-            gitDiffCommand = `${gitDiffCommand} ${excludeArg}`;
-          }
-          
+        // Log excluded patterns if any
+        if (aiCommitConfig.exclude?.length > 0) {
           console.log(chalk.blue(`Excluding files matching patterns: ${aiCommitConfig.exclude.join(', ')}`));
         }
+        
+        // Build git diff command with exclude patterns (now async)
+        const gitDiffCommand = await createGitDiffCommandWithExclusions(aiCommitConfig?.exclude);
         
         // Get staged changes with exclusions applied
         const { stdout: diff } = await execAsync(gitDiffCommand);
