@@ -1,12 +1,13 @@
 import chalk from 'chalk';
 import { exec } from 'child_process';
-import { Command } from 'commander';
+import type { Command } from 'commander';
 import inquirer from 'inquirer';
 import { promisify } from 'util';
-import { ConfigManager } from '../config';
+import type { ConfigManager } from '../config';
 import { AIService } from '../services/ai';
 import { findAiCommitConfigPath, loadAiCommitConfig, loadAiCommitConfigFromPath } from '../utils/config';
 import { createGitDiffCommandWithExclusions } from '../utils/git';
+import type { AiCommitConfig } from '../types/aicommit';
 
 const execAsync = promisify(exec);
 
@@ -65,7 +66,7 @@ async function getUserConfirmation(commitMessage: string): Promise<boolean> {
     {
       type: 'list',
       name: 'confirm',
-      message: `Do you want to commit with this message?`,
+      message: 'Do you want to commit with this message?',
       choices: ['Yes', 'No'],
       default: 'Yes'
     }
@@ -88,7 +89,7 @@ export function createCommit(program: Command, configManager: ConfigManager) {
         const customConfigPath = findAiCommitConfigPath(options.promptConfig);
 
         // Load the config and display which file is being used
-        let aiCommitConfig;
+        let aiCommitConfig: AiCommitConfig;
         if (customConfigPath) {
           console.log(chalk.blue(`Using config from: ${customConfigPath}`));
           aiCommitConfig = loadAiCommitConfigFromPath(customConfigPath);

@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
-import { ProviderConfig } from '../types/config';
+import type { ProviderConfig } from '../types/config';
 import { applyTemplateVariables } from '../utils/config';
-import { AiCommitConfig } from './../types/aicommit';
+import type { AiCommitConfig } from './../types/aicommit';
 
 export class AIService {
   private readonly openai: OpenAI;

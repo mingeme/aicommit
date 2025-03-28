@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { DEFAULT_ENDPOINTS, DEFAULT_MODEL } from './constants';
-import { Config, Provider, ProviderConfig, isValidProvider } from './types/config';
+import { type Config, Provider, type ProviderConfig, isValidProvider } from './types/config';
 import { CONFIG_DIR, CONFIG_FILE } from './utils/paths';
 
 export class ConfigManager {

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { parse, stringify } from 'yaml';
-import { DEFAULT_AICOMMIT_CONFIG, AiCommitConfig } from '../types/aicommit';
+import { DEFAULT_AICOMMIT_CONFIG, type AiCommitConfig } from '../types/aicommit';
 import { CONFIG_DIR } from './paths';
 
 // File names for the aicommit configuration

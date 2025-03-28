@@ -11,7 +11,7 @@ if (!fs.existsSync(versionFilePath)) {
   console.log('Version file does not exist. Generating...');
   try {
     // Run the generate-version.js script
-    execSync('node ' + path.resolve(__dirname, 'generate-version.js'), {
+    execSync(`node ${path.resolve(__dirname, 'generate-version.js')}`, {
       stdio: 'inherit'
     });
   } catch (error) {

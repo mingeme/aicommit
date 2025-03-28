@@ -21,17 +21,15 @@ function getVersionFromGit() {
       if (parts.length >= 3 && parts[parts.length - 2] === '0') {
         // We're on an exact tag, return just the tag (keeping v prefix)
         return parts.slice(0, parts.length - 2).join('-');
-      } else {
-        // We're not on an exact tag, add hash suffix to the tag
-        const tag = parts.slice(0, parts.length - 2).join('-');
-        const shortHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
-        return `${tag}-${shortHash}`;
       }
-    } else {
-      // No tags or git describe failed, use default version with hash
+      // We're not on an exact tag, add hash suffix to the tag
+      const tag = parts.slice(0, parts.length - 2).join('-');
       const shortHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
-      return `v0.1.0-${shortHash}`;
+      return `${tag}-${shortHash}`;
     }
+    // No tags or git describe failed, use default version with hash
+    const shortHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
+    return `v0.1.0-${shortHash}`;
   } catch (error) {
     console.error('Error getting version from git:', error.message);
     return "v0.1.0";

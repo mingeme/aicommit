@@ -5,3 +5,5 @@ prompt:
     Please generate a commit message for the following git diff:
 
     {{diff}}
+exclude:
+  - pnpm-lock.yaml

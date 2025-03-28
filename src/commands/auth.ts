@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { ConfigManager } from '../config';
+import type { ConfigManager } from '../config';
 import { PROVIDER_LIST } from '../types/config';
 
 export function createAuthCommand(configManager: ConfigManager): Command {
@@ -40,7 +40,7 @@ export function createAuthCommand(configManager: ConfigManager): Command {
       }
 
       console.log(chalk.blue('Configured Providers:'));
-      Object.entries(providers).forEach(([name, config]) => {
+      for (const [name, config] of Object.entries(providers)) {
         const isCurrent = name === currentProvider;
         const prefix = isCurrent ? chalk.green('* ') : '  ';
         console.log(`${prefix}${name}`);
@@ -49,7 +49,7 @@ export function createAuthCommand(configManager: ConfigManager): Command {
         if (config.endpoint) {
           console.log(`    Endpoint: ${config.endpoint}`);
         }
-      });
+      };
     });
 
   auth
