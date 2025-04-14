@@ -1,5 +1,7 @@
 # aicommit
 
+> **ANNOUNCEMENT**: This project is no longer maintained. Please migrate to the new project at [github.com/mingeme/fuckmit](https://github.com/mingeme/fuckmit).
+
 `aicommit` is an AI-powered git commit message generator.
 
 ![showcase](./assets/showcase.gif)
